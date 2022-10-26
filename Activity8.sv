@@ -13,13 +13,20 @@ module Activity8 #(
 			 input logic [DATA_WIDTH-1:0] value, 
 			 output logic [2*DATA_WIDTH-1:0] sum);
 
-logic [15:0] wvalue, wsum, wdata, wdout, wtotal, wdisplay;
+logic [15:0] wvalue, wsum, wdata, wdout, wtotal, wdisplay,wpadded;
 logic wload,waccen;
 	
 // Clock
-always_ff @(posedge Clk, posedge Reset)
-	if(Reset)begin total = 0; sum = 0;end
-	else total <= sum;
+	always_ff @(posedge Clk, posedge Reset)
+		if(Reset)begin total = 0; sum = 0;end
+		else total <= sum;
+	ffmem sumdisplay(.sum(wsum), .display(wdisplay));
+	accumulator accu1(.clk(clk), .enable(waccen), .Reset(Reset), .adderdata(wdata),.adderenable(wdout));
+	pad intgr(.value(wvalue), .paddedval(wpadded));
+	adder addy(.paddedval(wpadded), .sum(wsum), .data(wdata));
+	multi plexi(.data(wdata), .value(wvalue), .select(waccen), .dout(wdout));
+	
+
 endmodule
 	
 //Memory, flip flop for total
