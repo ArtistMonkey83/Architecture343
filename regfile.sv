@@ -1,17 +1,23 @@
-module regfile(input  logic clk, 
-               input  logic WE3, 
-               input  logic [3:0]  RA1, RA2, WA3, //Read Address 1 & 2, Write Address 4 bits for 16 Registers
-               input  logic [31:0] WD3, R15,
-               output logic [31:0] RD1, RD2);
+// Register File module 
+// this module provides access to R0-R14 only. R15 will always read PC+8
+// Do not change this module
+
+module regfile(input  logic        clk, 
+               input  logic        we3, 
+               input  logic [3:0]  ra1, ra2, wa3, 
+               input  logic [31:0] wd3, r15,
+               output logic [31:0] rd1, rd2);
 
   logic [31:0] rf[14:0];
 
+  // three ported register file
+  // read two ports combinationally
+  // write third port on rising edge of clock
+  // register 15 reads PC+8 instead
+
   always_ff @(posedge clk)
-    if (WE3) rf[WA3] <= WD3;	//Evaluates to true if we want to write to a register
-										//WA3 contains the write address of the register we are modifying 
-										//WD3 contains the result we want to save
-  
-  assign RD1 = (RA1 == 4'b1111) ? R15 : rf[RA1]; //If RA1 is 15 access Program Counter, otherwise use RA1 to determine our register
-  assign RD2 = (RA2 == 4'b1111) ? R15 : rf[RA2]; //If RA2 is 15 access Program Counter, otherwise use RA2 to determine our register
-	
+    if (we3) rf[wa3] <= wd3;	
+
+  assign rd1 = (ra1 == 4'b1111) ? r15 : rf[ra1];
+  assign rd2 = (ra2 == 4'b1111) ? r15 : rf[ra2];
 endmodule
